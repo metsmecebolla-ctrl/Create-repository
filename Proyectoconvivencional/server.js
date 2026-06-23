@@ -1,38 +1,32 @@
 const express = require('express');
-const cors = require('cors'); // Necesario para evitar errores de conexión web
+const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const WebSocket = require('ws'); // <-- Aquí añadimos el paquete que faltaba
 
 const app = express();
 
 // Middlewares
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
 
 // CONFIGURACIÓN DE SUPABASE
 const supabaseUrl = 'https://mgzryyktqhwfoskctxtd.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nenJ5eWt0cWh3Zm9za2N0eGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNDA2NzksImV4cCI6MjA5NzgxNjY3OX0.QqZxMU-qdKEoQyclctz20EoJQBxVQ0f1jd-Egp4ITpY';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// ¡OJO AQUÍ! Borra el texto de abajo y pega tu clave súper larga de Supabase entre las comillas
+const supabaseKey = 'PEGA_TU_CLAVE_AQUI'; 
 
-// RUTA PRINCIPAL (Para evitar el mensaje de "Cannot GET /")
+// Inicializamos Supabase con la configuración corregida para que no dé el error
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+  realtime: { transport: WebSocket }
+});
+
+// RUTA PRINCIPAL
 app.get('/', (req, res) => {
-    res.send('Servidor del Proyecto Convivencial Activo');
+    res.send('Servidor del Proyecto Convivencial Activo y sin errores');
 });
 
-// RUTA PARA REGISTRAR FALTA
-app.post('/api/registrar-falta', async (req, res) => {
-    const { estudiante_id, tipo, descripcion, estado } = req.body;
-    
-    const { data, error } = await supabase
-        .from('historial')
-        .insert([{ estudiante_id, tipo, descripcion, estado }]);
-
-    if (error) {
-        console.error("Error al insertar:", error.message);
-        return res.status(500).json({ error: error.message });
-    }
-    res.json({ success: true, data });
-});
-
-// PUERTO DINÁMICO (Crucial para Render)
+// PUERTO Y ENCENDIDO DEL SERVIDOR
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
