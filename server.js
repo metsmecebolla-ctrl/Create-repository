@@ -6,15 +6,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const supabaseUrl = 'https://mgzryyktqhwfoskctxtd.supabase.co';
-// Pega aquí tu clave anon (la que empieza con eyJ...)
-const supabaseKey = 'TU_CLAVE_AQUI'; 
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 
-// Inicialización estándar sin forzar transporte, esto es lo más estable
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.get('/', (req, res) => {
-    res.send('Servidor Activo');
+    res.send('Servidor activo');
 });
 
 app.get('/test-db', async (req, res) => {
@@ -29,5 +27,5 @@ app.get('/test-db', async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`Servidor iniciado en puerto ${PORT}`);
 });
