@@ -1,38 +1,29 @@
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
-const WebSocket = require('ws');
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
 const supabaseUrl = 'https://mgzryyktqhwfoskctxtd.supabase.co';
-// Asegúrate de pegar tu clave anon aquí adentro
+// Pega aquí tu clave anon (la que empieza con eyJ...)
 const supabaseKey = 'TU_CLAVE_AQUI'; 
 
-// Inicialización corregida con transporte de WebSocket
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: false },
-  realtime: { 
-    transport: WebSocket 
-  }
-});
+// Inicialización estándar sin forzar transporte, esto es lo más estable
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// RUTA PRINCIPAL
 app.get('/', (req, res) => {
-    res.send('Servidor del Proyecto Convivencial Activo y sin errores');
+    res.send('Servidor Activo');
 });
 
-// RUTA DE PRUEBA DE CONEXIÓN A LA BASE DE DATOS
 app.get('/test-db', async (req, res) => {
     try {
         const { data, error } = await supabase.from('historial').select('*').limit(1);
         if (error) throw error;
-        res.json({ mensaje: "Conexión exitosa con Supabase!", datos: data });
+        res.json({ mensaje: "Conexión exitosa", datos: data });
     } catch (err) {
-        res.status(500).json({ mensaje: "Error conectando a la DB", error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
